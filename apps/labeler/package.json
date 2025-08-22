@@ -1,0 +1,16 @@
+{
+  "name": "atproto-demo-labeler",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Labeler service skeleton for ATProto demo",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch ./src/server.js",
+    "start": "node ./dist/server.js",
+    "build": "echo 'No build step yet'"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
+

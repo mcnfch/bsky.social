@@ -1,0 +1,38 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: atproto_demo_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: atproto
+      POSTGRES_PASSWORD: atproto
+      POSTGRES_DB: atproto
+    ports:
+      - "5434:5432" # host:container
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # feed-generator:
+  #   build: ../../apps/feed-generator
+  #   environment:
+  #     PORT: 8081
+  #   ports:
+  #     - "8081:8081"
+
+  # labeler:
+  #   build: ../../apps/labeler
+  #   environment:
+  #     PORT: 8082
+  #   ports:
+  #     - "8082:8082"
+
+volumes:
+  pgdata: {}
+

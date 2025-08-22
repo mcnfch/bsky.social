@@ -1,0 +1,19 @@
+{
+  "name": "@demo/shared",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Shared types and API helpers for ATProto demo",
+  "type": "commonjs",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@atproto/api": "workspace:^"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
+

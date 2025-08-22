@@ -1,0 +1,17 @@
+{
+  "name": "atproto-demo-feed-generator",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Custom feed generator skeleton for ATProto demo",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch ./src/server.js",
+    "start": "node ./dist/server.js",
+    "build": "echo 'No build step yet'"
+  },
+  "dependencies": {
+    "@atproto/api": "workspace:^",
+    "express": "^4.19.2"
+  }
+}
+

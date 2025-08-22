@@ -1,0 +1,17 @@
+{
+  "name": "atproto-demo-firehose-worker",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Firehose -> Postgres ingestor skeleton",
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch ./src/index.js",
+    "start": "node ./dist/index.js",
+    "build": "echo 'No build step yet'"
+  },
+  "dependencies": {
+    "@atproto/sync": "workspace:^",
+    "@atproto/identity": "workspace:^",
+    "pg": "^8.11.5"
+  }
+}
