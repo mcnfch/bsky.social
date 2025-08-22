@@ -1,143 +1,71 @@
-# AT Protocol Reference Implementation (TypeScript)
+# AT Protocol Showcase — Full‑Stack Demo
 
-Welcome friends!
+An end‑to‑end demonstration of building with Bluesky’s AT Protocol. It includes a Next.js web app, two federated services (custom feed + labeler), and a firehose worker backed by Postgres — all wired to a real PDS and AppView.
 
-This repository contains Bluesky's reference implementation of AT Protocol, and of the `app.bsky` microblogging application service backend.
+**Highlights**
+- Web app (Next.js/TypeScript) with login (App Password), timeline, profile, and posting.
+- Uses the correct split of concerns: writes to the PDS, reads timeline from AppView.
+- Custom feed generator and labeler service skeletons with health endpoints.
+- Firehose listener that ingests commit events and tracks simple metrics in Postgres.
+- Monorepo with pnpm workspaces, shared helpers, Dockerized Postgres, and concise docs.
 
-## Demo Showcase (Skills Highlight)
+## Skills Demonstrated
 
-This fork includes a small end‑to‑end demo I built to showcase practical AT Protocol development. It adds a Next.js web app, two federated services, and a firehose worker on top of the reference implementation.
+- AT Protocol & Bluesky APIs: XRPC, `@atproto/api` (`BskyAgent`), app‑password sessions, PDS vs AppView separation, labelers, and lexicon‑typed calls.
+- Full‑stack TypeScript: Next.js 14 + React 18 pages and components, basic session handling and error states.
+- Backend services: Node/Express microservices (feed generator, labeler) with simple rules, health checks, and JSON endpoints.
+- Streaming & data: `@atproto/sync` firehose consumer with cursor handling, idempotent upserts, and Postgres storage.
+- Infrastructure & tooling: pnpm workspaces, shared package, Docker Compose for Postgres, environment configuration, and operational docs.
+- Practical concerns: CORS with PDS/AppView, token storage for demo use, incremental rollout plan toward OAuth and CI/CD.
 
-Skills demonstrated
-- AT Protocol integration: authenticated sessions (app passwords) against a PDS, reading timelines from AppView, and creating posts via `@atproto/api` (`BskyAgent`). Handled PDS vs AppView boundaries and CORS nuances.
-- Full‑stack TypeScript (Next.js 14 + React 18): simple auth screen, timeline, and profile pages; session storage and basic error handling.
-- Federated services (Node/Express):
-  - Custom Feed Generator skeleton implementing the `app.bsky.feed.getFeedSkeleton` endpoint shape.
-  - Labeler service with a minimal rules engine and health endpoints.
-- Firehose ingestion: `@atproto/sync`‑based consumer that tracks a cursor and writes basic analytics to Postgres.
-- Monorepo & tooling: pnpm workspaces, shared package, local Docker Compose for Postgres, and concise architecture/operations docs.
+## What’s Included
 
-Added layout (this fork)
-- `apps/web`: Next.js demo app on `http://localhost:7777` (login, timeline, profile)
-- `apps/feed-generator`: feed skeleton service (Express)
-- `apps/labeler`: labeler service (Express)
-- `apps/firehose-worker`: firehose → Postgres ingestor
-- `packages/shared`: shared ATProto client helpers
+- `apps/web`: Next.js demo on `http://localhost:7777`
+  - Login (App Password against PDS), Timeline (reads from AppView), Profile lookup
+  - Posts are created against the user’s PDS session
+- `apps/feed-generator`: custom feed skeleton (Express), `GET /health`, placeholder `getFeedSkeleton`
+- `apps/labeler`: labeler skeleton (Express), `GET /health`, simple keyword rule via `POST /label`
+- `apps/firehose-worker`: ingests firehose events into Postgres (e.g., daily `post_counts`)
+- `packages/shared`: shared ATProto helpers (composition point for richer clients)
 - `infra/docker/docker-compose.yml`: Postgres on host port `5434`
-- `docs/architecture.md`, `docs/operations.md`
+- `docs/architecture.md`, `docs/operations.md`: architecture and local ops notes
 
-Quick start (demo)
-- Start Postgres: `cd infra/docker && docker compose up -d postgres`
-- Web app: `cd apps/web && pnpm dev` → http://localhost:7777
-- Optional services: run `pnpm dev` in `apps/feed-generator` and `apps/labeler`
+## Quick Start
 
+Prereqs: Node 18+, pnpm, Docker.
 
-## What is in here?
+1) Start Postgres
+- `cd infra/docker && docker compose up -d postgres`
+- Connection: host `localhost`, port `5434`, db `atproto`, user `atproto`, password `atproto`.
 
-**TypeScript Packages:**
+2) Run the web app
+- `cd apps/web && pnpm install && pnpm dev`
+- Open `http://localhost:7777`
 
-| Package                                                                       | Docs                                       | NPM                                                                                                             |
-| ----------------------------------------------------------------------------- | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| `@atproto/api`: client library                                                | [README](./packages/api/README.md)         | [![NPM](https://img.shields.io/npm/v/@atproto/api)](https://www.npmjs.com/package/@atproto/api)                 |
-| `@atproto/common-web`: shared code and helpers which can run in web browsers  | [README](./packages/common-web/README.md)  | [![NPM](https://img.shields.io/npm/v/@atproto/common-web)](https://www.npmjs.com/package/@atproto/common-web)   |
-| `@atproto/common`: shared code and helpers which doesn't work in web browsers | [README](./packages/common/README.md)      | [![NPM](https://img.shields.io/npm/v/@atproto/common)](https://www.npmjs.com/package/@atproto/common)           |
-| `@atproto/crypto`: cryptographic signing and key serialization                | [README](./packages/crypto/README.md)      | [![NPM](https://img.shields.io/npm/v/@atproto/crypto)](https://www.npmjs.com/package/@atproto/crypto)           |
-| `@atproto/identity`: DID and handle resolution                                | [README](./packages/identity/README.md)    | [![NPM](https://img.shields.io/npm/v/@atproto/identity)](https://www.npmjs.com/package/@atproto/identity)       |
-| `@atproto/lexicon`: schema definition language                                | [README](./packages/lexicon/README.md)     | [![NPM](https://img.shields.io/npm/v/@atproto/lexicon)](https://www.npmjs.com/package/@atproto/lexicon)         |
-| `@atproto/repo`: data storage structure, including MST                        | [README](./packages/repo/README.md)        | [![NPM](https://img.shields.io/npm/v/@atproto/repo)](https://www.npmjs.com/package/@atproto/repo)               |
-| `@atproto/syntax`: string parsers for identifiers                             | [README](./packages/syntax/README.md)      | [![NPM](https://img.shields.io/npm/v/@atproto/syntax)](https://www.npmjs.com/package/@atproto/syntax)           |
-| `@atproto/xrpc`: client-side HTTP API helpers                                 | [README](./packages/xrpc/README.md)        | [![NPM](https://img.shields.io/npm/v/@atproto/xrpc)](https://www.npmjs.com/package/@atproto/xrpc)               |
-| `@atproto/xrpc-server`: server-side HTTP API helpers                          | [README](./packages/xrpc-server/README.md) | [![NPM](https://img.shields.io/npm/v/@atproto/xrpc-server)](https://www.npmjs.com/package/@atproto/xrpc-server) |
+3) Sign in (App Password)
+- Service: `https://bsky.social` (or your PDS)
+- Handle: your.handle.bsky.social (or DID)
+- App Password: from Bluesky Settings → App Passwords
+- After login: timeline loads from `https://api.bsky.app`; posting writes via your PDS session.
 
-**TypeScript Services:**
+Optional services
+- Feed generator: `cd apps/feed-generator && pnpm install && pnpm dev` → `http://localhost:8081/health`
+- Labeler: `cd apps/labeler && pnpm install && pnpm dev` → `http://localhost:8082/health`
+- Firehose worker: `cd apps/firehose-worker && pnpm install && pnpm dev` (writes basic metrics into Postgres)
 
-- `pds`: "Personal Data Server", hosting repo content for atproto accounts. Most implementation code in `packages/pds`, with runtime wrapper in `services/pds`. See [bluesky-social/pds](https://github.com/bluesky-social/pds) for directions on self-hosting.
-- `bsky`: AppView implementation of the `app.bsky.*` API endpoints. Running on main network at `api.bsky.app`. Most implementation code in `packages/bsky`, with runtime wrapper in `services/bsky`.
+## Implementation Notes
 
-**Lexicons:** for both the `com.atproto.*` and `app.bsky.*` are canonically versioned in this repo, for now, under `./lexicons/`. These are JSON files in the [Lexicon schema definition language](https://atproto.com/specs/lexicon), similar to JSON Schema or OpenAPI.
+- Auth: prioritizes App Passwords for demo; OAuth is the next step (PKCE + server exchange).
+- PDS vs AppView: login and writes target the PDS; timeline reads from AppView.
+- Sessions: stored in browser storage for demo purposes; can be swapped for cookie‑backed sessions.
+- Firehose: uses `@atproto/sync` subscription with a persisted cursor; minimal schema for analytics.
+- Extensibility: a custom lexicon and CRUD UI can be added following the same patterns.
 
-**Interoperability Test Data:** the language-neutral test files in `./interop-test-files/` may be useful for other protocol implementations to ensure that they follow the specification correctly
+## Next Steps (Roadmap)
 
-The source code for the Bluesky Social client app (for web and mobile) can be found at [bluesky-social/social-app](https://github.com/bluesky-social/social-app).
-
-Go programming language source code is in [bluesky-social/indigo](https://github.com/bluesky-social/indigo), including the BGS implementation.
-
-## Developer Quickstart
-
-We recommend [`nvm`](https://github.com/nvm-sh/nvm) for managing Node.js installs. This project requires Node.js version 18. `pnpm` is used to manage the workspace of multiple packages. You can install it with `npm install --global pnpm`.
-
-There is a Makefile which can help with basic development tasks:
-
-```shell
-# use existing nvm to install node 18 and pnpm
-make nvm-setup
-
-# pull dependencies and build all local packages
-make deps
-make build
-
-# run the tests, using Docker services as needed
-make test
-
-# run a local PDS and AppView with fake test accounts and data
-# (this requires a global installation of `jq` and `docker`)
-make run-dev-env
-
-# show all other commands
-make help
-```
-
-## About AT Protocol
-
-The Authenticated Transfer Protocol ("ATP" or "atproto") is a decentralized social media protocol, developed by [Bluesky Social PBC](https://bsky.social). Learn more at:
-
-- [Overview and Guides](https://atproto.com/guides/overview) 👈 Best starting point
-- [Github Discussions](https://github.com/bluesky-social/atproto/discussions) 👈 Great place to ask questions
-- [Protocol Specifications](https://atproto.com/specs/atp)
-- [Blogpost on self-authenticating data structures](https://bsky.social/about/blog/3-6-2022-a-self-authenticating-social-protocol)
-
-The Bluesky Social application encompasses a set of schemas and APIs built in the overall AT Protocol framework. The namespace for these "Lexicons" is `app.bsky.*`.
-
-## Contributions
-
-> While we do accept contributions, we prioritize high quality issues and pull requests. Adhering to the below guidelines will ensure a more timely review.
-
-**Rules:**
-
-- We may not respond to your issue or PR.
-- We may close an issue or PR without much feedback.
-- We may lock discussions or contributions if our attention is getting DDOSed.
-- We do not provide support for build issues.
-
-**Guidelines:**
-
-- Check for existing issues before filing a new one, please.
-- Open an issue and give some time for discussion before submitting a PR.
-- If submitting a PR that includes a lexicon change, please get sign off on the lexicon change _before_ doing the implementation.
-- Issues are for bugs & feature requests related to the TypeScript implementation of atproto and related services.
-  - For high-level discussions, please use the [Discussion Forum](https://github.com/bluesky-social/atproto/discussions).
-  - For client issues, please use the relevant [social-app](https://github.com/bluesky-social/social-app) repo.
-- Stay away from PRs that:
-  - Refactor large parts of the codebase
-  - Add entirely new features without prior discussion
-  - Change the tooling or frameworks used without prior discussion
-  - Introduce new unnecessary dependencies
-
-Remember, we serve a wide community of users. Our day-to-day involves us constantly asking "which top priority is our top priority." If you submit well-written PRs that solve problems concisely, that's an awesome contribution. Otherwise, as much as we'd love to accept your ideas and contributions, we really don't have the bandwidth.
-
-## Are you a developer interested in building on atproto?
-
-Bluesky is an open social network built on the AT Protocol, a flexible technology that will never lock developers out of the ecosystems that they help build. With atproto, third-party can be as seamless as first-party through custom feeds, federated services, clients, and more.
-
-## Security disclosures
-
-If you discover any security issues, please send an email to security@bsky.app. The email is automatically CCed to the entire team, and we'll respond promptly. See [SECURITY.md](https://github.com/bluesky-social/atproto/blob/main/SECURITY.md) for more info.
-
-## License
-
-This project is dual-licensed under MIT and Apache 2.0 terms:
-
-- MIT license ([LICENSE-MIT.txt](https://github.com/bluesky-social/atproto/blob/main/LICENSE-MIT.txt) or http://opensource.org/licenses/MIT)
-- Apache License, Version 2.0, ([LICENSE-APACHE.txt](https://github.com/bluesky-social/atproto/blob/main/LICENSE-APACHE.txt) or http://www.apache.org/licenses/LICENSE-2.0)
-
-Downstream projects and end users may chose either license individually, or both together, at their discretion. The motivation for this dual-licensing is the additional software patent assurance provided by Apache 2.0.
+- OAuth (PKCE), persisted sessions, and token rotation.
+- Publish custom feeds and surface feed IDs in the UI; add a feed explorer.
+- Labeler rules editor, on/off toggles, and label audits in the UI.
+- Expand firehose analytics (hashtags, authors, labels) with charts.
+- Add CI: type‑check, lint, test, build, and deploy workflows.
+- Custom lexicon + CRUD views (validation against lexicons).
