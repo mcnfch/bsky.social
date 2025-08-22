@@ -4,6 +4,34 @@ Welcome friends!
 
 This repository contains Bluesky's reference implementation of AT Protocol, and of the `app.bsky` microblogging application service backend.
 
+## Demo Showcase (Skills Highlight)
+
+This fork includes a small end‑to‑end demo I built to showcase practical AT Protocol development. It adds a Next.js web app, two federated services, and a firehose worker on top of the reference implementation.
+
+Skills demonstrated
+- AT Protocol integration: authenticated sessions (app passwords) against a PDS, reading timelines from AppView, and creating posts via `@atproto/api` (`BskyAgent`). Handled PDS vs AppView boundaries and CORS nuances.
+- Full‑stack TypeScript (Next.js 14 + React 18): simple auth screen, timeline, and profile pages; session storage and basic error handling.
+- Federated services (Node/Express):
+  - Custom Feed Generator skeleton implementing the `app.bsky.feed.getFeedSkeleton` endpoint shape.
+  - Labeler service with a minimal rules engine and health endpoints.
+- Firehose ingestion: `@atproto/sync`‑based consumer that tracks a cursor and writes basic analytics to Postgres.
+- Monorepo & tooling: pnpm workspaces, shared package, local Docker Compose for Postgres, and concise architecture/operations docs.
+
+Added layout (this fork)
+- `apps/web`: Next.js demo app on `http://localhost:7777` (login, timeline, profile)
+- `apps/feed-generator`: feed skeleton service (Express)
+- `apps/labeler`: labeler service (Express)
+- `apps/firehose-worker`: firehose → Postgres ingestor
+- `packages/shared`: shared ATProto client helpers
+- `infra/docker/docker-compose.yml`: Postgres on host port `5434`
+- `docs/architecture.md`, `docs/operations.md`
+
+Quick start (demo)
+- Start Postgres: `cd infra/docker && docker compose up -d postgres`
+- Web app: `cd apps/web && pnpm dev` → http://localhost:7777
+- Optional services: run `pnpm dev` in `apps/feed-generator` and `apps/labeler`
+
+
 ## What is in here?
 
 **TypeScript Packages:**
